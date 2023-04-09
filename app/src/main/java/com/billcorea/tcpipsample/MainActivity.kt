@@ -15,7 +15,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.billcorea.tcpipsample.ui.theme.TcpIpSampleTheme
 import kotlinx.coroutines.*
 import java.io.IOException
-import java.io.InputStream
 import java.io.OutputStreamWriter
 import java.net.Socket
 import java.net.UnknownHostException
@@ -46,12 +45,12 @@ class MainActivity : ComponentActivity() {
                             Icon(imageVector = Icons.Outlined.Start, contentDescription = "Start")
                         }
                         IconButton(onClick = {
-                            doSendToServer()
+                            doSendToServer("")
                         }) {
                             Icon(imageVector = Icons.Outlined.Send, contentDescription = "Send")
                         }
                         IconButton(onClick = {
-                            doQuitToServer()
+                            doSendToServer("finished")
                         }) {
                             Icon(imageVector = Icons.Outlined.Close, contentDescription = "Close")
                         }
@@ -66,34 +65,17 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    private fun doQuitToServer() {
-        Log.e("", "doQuitToServer ...")
-        GlobalScope.launch {
-            try {
-                val writer = OutputStreamWriter(socket.getOutputStream())
-                writer.write("finished")
-                writer.flush()
-            } catch (e : IOException) {
-                Log.e("", "네트워크 응답 없음")
-            } catch (e : UnknownHostException) {
-                Log.e("", "알 수 없는 호스트 IP")
-            } catch (e : SecurityException) {
-                Log.e("", "보안 접속 오류 proxy 접속 거부")
-            } catch (e : IllegalArgumentException) {
-                Log.e("", "server port range 0 ~ 65535 ")
-            } catch (e : Exception) {
-                Log.e("", "error ${e.localizedMessage}")
-            }
-        }
-    }
-
     @OptIn(DelicateCoroutinesApi::class)
-    private fun doSendToServer() {
+    private fun doSendToServer(strMessage: String) {
         Log.e("", "doSendToServer ...")
         GlobalScope.launch {
             try {
                 val writer = OutputStreamWriter(socket.getOutputStream())
-                writer.write("hello server")
+                if ("" == strMessage) {
+                    writer.write("hello server")
+                } else {
+                    writer.write(strMessage)
+                }
                 writer.flush()
             } catch (e : IOException) {
                 Log.e("", "네트워크 응답 없음")
